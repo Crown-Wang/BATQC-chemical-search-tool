@@ -1,0 +1,88 @@
+
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>化学品搜索工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
+        <h2 class="text-2xl font-bold mb-4">化学品搜索</h2>
+        <div class="flex mb-4">
+            <input
+                id="chemicalName"
+                type="text"
+                placeholder="输入化学品名称"
+                class="flex-grow px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+                onclick="searchChemical()"
+                class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+                搜索
+            </button>
+        </div>
+        <div id="result" class="mt-4"></div>
+    </div>
+
+    <script>
+        // 模拟化学品数据库
+        const chemicals = [
+            { name: "乙醇", approved: true, dateAdded: "2022-01-15" },
+            { name: "硫酸", approved: true, dateAdded: "2022-02-20" },
+            { name: "氯化钠", approved: true, dateAdded: "2022-03-10" },
+            // 添加更多已批准的化学品
+        ];
+
+        function searchChemical() {
+            const name = document.getElementById('chemicalName').value.trim();
+            const resultDiv = document.getElementById('result');
+            const chemical = chemicals.find(c => c.name === name);
+
+            if (chemical) {
+                resultDiv.innerHTML = `
+                    <div class="p-4 bg-green-100 rounded-lg">
+                        <p><strong>化学品名称：</strong>${chemical.name}</p>
+                        <p><strong>状态：</strong>已批准使用</p>
+                        <p><strong>添加日期：</strong>${chemical.dateAdded}</p>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="p-4 bg-red-100 rounded-lg">
+                        <p>未找到该化学品，该化学品可能为<strong>新化学品</strong>。</p>
+                        <p>请联系安全部门进行审核。</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+<script>window.parent.postMessage({ action: "ready" }, "*"); 
+ 
+window.console = new Proxy(console, {
+  get(target, prop) {
+    if (['log', 'warn', 'error'].includes(prop)) {
+      return new Proxy(target[prop], {
+        apply(fn, thisArg, args) {
+          fn.apply(thisArg, args);
+          window.parent.postMessage({ action: 'console', 
+            type: prop, 
+            args: args.map((arg) => {
+              try {
+                return JSON.stringify(arg).replace(/^["']|["']$/g, '');
+              } catch (e) {
+                return arg;
+              }
+            }) 
+          }, '*');
+        }
+      });
+    }
+    return target[prop];
+  }
+});
+</script></body>
+</html>
+
